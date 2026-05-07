@@ -131,16 +131,25 @@
     <!-- FIREBASE & APP LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // 1. CẤU HÌNH & KHỞI TẠO FIREBASE
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIuE6N7A5p7rK-nGeO3io0Nz0WeMY1okY",
+            authDomain: "nexgen247-blogger.firebaseapp.com",
+            projectId: "nexgen247-blogger",
+            storageBucket: "nexgen247-blogger.firebasestorage.app",
+            messagingSenderId: "761509956773",
+            appId: "1:761509956773:web:9a837387a18951db41914c",
+            measurementId: "G-HFN8BXDH81"
+        };
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const appId = 'nexgen247-blogger-tool'; // Tên định danh cho dự án của bạn
         const COLLECTION_NAME = 'BloggerPosts';
         
         let currentUser = null;
@@ -171,13 +180,11 @@
         // 2. QUẢN LÝ XÁC THỰC (Bắt buộc trước khi thao tác Database)
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                // Đăng nhập ẩn danh (Yêu cầu phải bật Authentication -> Anonymous trong Firebase Console)
+                await signInAnonymously(auth);
             } catch (error) {
                 showToast("Lỗi đăng nhập: " + error.message, "error");
+                console.error("Auth error:", error);
             }
         };
 
@@ -328,10 +335,6 @@
         window.prepareEdit = (id) => {
             if (!currentUser) return;
             const postsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
-            
-            // Tìm dữ liệu bài viết từ local UI (có thể lấy từ db nhưng lấy từ UI cho nhanh vì đã tải)
-            // Tối ưu hơn: Lắng nghe trạng thái realtime, ta có thể dùng biến lưu tạm.
-            // Ở đây gọi 1 truy vấn nhỏ để lấy data cho chắc chắn
             
             // Đơn giản hóa: kích hoạt trạng thái sửa
             editPostIdInput.value = id;
