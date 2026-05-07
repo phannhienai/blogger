@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ quản lý bài viết Blogger</title>
+    <!-- Sử dụng Tailwind CSS để làm giao diện nhanh và đẹp -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icon từ Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Tùy chỉnh thanh cuộn cho đẹp */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center">
+        <i class="ph ph-spinner-gap animate-spin text-5xl text-blue-500 mb-4"></i>
+        <p class="text-gray-600 font-medium">Đang kết nối hệ thống...</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 hidden" id="appContainer">
+        
+        <header class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                    <i class="ph-fill ph-google-logo text-blue-500"></i>
+                    Blogger Content Hub
+                </h1>
+                <p class="text-gray-500 mt-1">Quản lý và lưu trữ bài viết trên Firebase</p>
+            </div>
+            <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                Đã kết nối
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cột trái: Form Thêm/Sửa bài viết -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2" id="formTitle">
+                        <i class="ph ph-pencil-simple-line"></i> Tạo bài viết mới
+                    </h2>
+                    
+                    <form id="postForm" class="space-y-4">
+                        <!-- Trường ẩn để lưu ID bài viết khi đang chế độ Sửa -->
+                        <input type="hidden" id="editPostId">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề bài viết</label>
+                            <input type="text" id="title" required placeholder="Nhập tiêu đề hấp dẫn..." 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nội dung HTML / Văn bản</label>
+                            <textarea id="content" required rows="10" placeholder="<p>Nội dung bài viết bắt đầu ở đây...</p>"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                            <select id="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="draft">Bản nháp (Draft)</option>
+                                <option value="ready">Sẵn sàng đăng (Ready)</option>
+                            </select>
+                        </div>
+
+                        <div class="pt-2 flex gap-2">
+                            <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2">
+                                <i class="ph ph-floppy-disk"></i> Lưu bài viết
+                            </button>
+                            <button type="button" id="cancelEditBtn" class="hidden px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
+                                Hủy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cột phải: Danh sách bài viết -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-[calc(100vh-120px)] min-h-[500px]">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <i class="ph ph-list-dashes"></i> Kho bài viết (<span id="postCount">0</span>)
+                        </h2>
+                    </div>
+                    
+                    <!-- Vùng chứa danh sách -->
+                    <div class="p-6 overflow-y-auto flex-1 bg-gray-50/30" id="postsContainer">
+                        <!-- Render danh sách ở đây -->
+                        <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
+                            <i class="ph ph-file-text text-6xl mb-3"></i>
+                            <p>Chưa có bài viết nào.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal (Thay thế cho window.confirm) -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/50 z-50 hidden flex-col items-center justify-center">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl fade-in">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Xác nhận xóa</h3>
+            <p class="text-gray-600 mb-6">Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.</p>
+            <div class="flex justify-end gap-3">
+                <button id="cancelDeleteBtn" class="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors">Hủy</button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">Xóa bài</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50">
+        <i class="ph ph-info" id="toastIcon"></i>
+        <span id="toastMessage">Thông báo</span>
+    </div>
+
+    <!-- FIREBASE & APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 1. CẤU HÌNH & KHỞI TẠO FIREBASE
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const COLLECTION_NAME = 'BloggerPosts';
+        
+        let currentUser = null;
+        let unsubscribeSnapshot = null;
+        let deleteTargetId = null;
+
+        // DOM Elements
+        const form = document.getElementById('postForm');
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('content');
+        const statusSelect = document.getElementById('status');
+        const editPostIdInput = document.getElementById('editPostId');
+        
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const postsContainer = document.getElementById('postsContainer');
+        const postCount = document.getElementById('postCount');
+        const emptyState = document.getElementById('emptyState');
+        const appContainer = document.getElementById('appContainer');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Modal Elements
+        const confirmModal = document.getElementById('confirmModal');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+        // 2. QUẢN LÝ XÁC THỰC (Bắt buộc trước khi thao tác Database)
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                showToast("Lỗi đăng nhập: " + error.message, "error");
+            }
+        };
+
+        // Lắng nghe trạng thái đăng nhập
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadingOverlay.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                loadPosts(); // Chỉ tải dữ liệu khi đã có user
+            } else {
+                currentUser = null;
+            }
+        });
+
+        // Bắt đầu quá trình xác thực
+        initAuth();
+
+        // 3. LOGIC HIỂN THỊ DỮ LIỆU (READ)
+        function loadPosts() {
+            if (!currentUser) return;
+
+            // Lấy Collection tham chiếu theo đúng chuẩn bảo mật
+            const postsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
+
+            // onSnapshot giúp dữ liệu cập nhật Realtime mà không cần tải lại trang
+            unsubscribeSnapshot = onSnapshot(postsRef, (snapshot) => {
+                const posts = [];
+                snapshot.forEach((doc) => {
+                    posts.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sắp xếp bằng JS trên RAM (Bài mới lên đầu)
+                posts.sort((a, b) => b.timestamp - a.timestamp);
+                
+                renderPosts(posts);
+            }, (error) => {
+                showToast("Lỗi tải dữ liệu", "error");
+                console.error(error);
+            });
+        }
+
+        function renderPosts(posts) {
+            postCount.textContent = posts.length;
+            
+            if (posts.length === 0) {
+                postsContainer.innerHTML = '';
+                postsContainer.appendChild(emptyState);
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            let html = '<div class="space-y-4">';
+
+            posts.forEach(post => {
+                const date = new Date(post.timestamp).toLocaleString('vi-VN');
+                const statusColor = post.status === 'draft' ? 'bg-gray-100 text-gray-700' : 'bg-green-100 text-green-700';
+                const statusText = post.status === 'draft' ? 'Bản nháp' : 'Sẵn sàng';
+
+                // Trích xuất 1 đoạn ngắn của content để làm preview
+                const contentPreview = post.content.replace(/<[^>]*>?/gm, '').substring(0, 100) + '...';
+
+                html += `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow fade-in">
+                        <div class="flex justify-between items-start gap-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-lg font-semibold text-gray-900 truncate" title="${post.title}">
+                                    ${post.title}
+                                </h3>
+                                <div class="flex items-center gap-3 mt-2 text-xs">
+                                    <span class="px-2.5 py-1 rounded-full font-medium ${statusColor}">${statusText}</span>
+                                    <span class="text-gray-400 flex items-center gap-1"><i class="ph ph-clock"></i> ${date}</span>
+                                </div>
+                                <p class="text-gray-500 text-sm mt-3 line-clamp-2">${contentPreview}</p>
+                            </div>
+                            
+                            <!-- Nút thao tác -->
+                            <div class="flex flex-col sm:flex-row gap-2 shrink-0">
+                                <button onclick="window.prepareEdit('${post.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Sửa bài">
+                                    <i class="ph ph-pencil-simple text-xl"></i>
+                                </button>
+                                <button onclick="window.requestDelete('${post.id}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Xóa bài">
+                                    <i class="ph ph-trash text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            postsContainer.innerHTML = html;
+        }
+
+        // 4. LOGIC THÊM VÀ SỬA DỮ LIỆU (CREATE & UPDATE)
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+            const status = statusSelect.value;
+            const editId = editPostIdInput.value;
+
+            if (!title || !content) {
+                showToast("Vui lòng điền đủ Tiêu đề và Nội dung", "error");
+                return;
+            }
+
+            // Vô hiệu hóa nút để tránh click nhiều lần
+            submitBtn.disabled = true;
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Đang xử lý...';
+
+            try {
+                const postsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
+                
+                const postData = {
+                    title: title,
+                    content: content,
+                    status: status,
+                    timestamp: Date.now() // Sử dụng JS timestamp cho đơn giản
+                };
+
+                if (editId) {
+                    // Chế độ UPDATE
+                    const docRef = doc(postsRef, editId);
+                    await updateDoc(docRef, postData);
+                    showToast("Cập nhật thành công!", "success");
+                    exitEditMode();
+                } else {
+                    // Chế độ CREATE (Thêm mới)
+                    await addDoc(postsRef, postData);
+                    showToast("Lưu bài viết thành công!", "success");
+                    form.reset();
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                showToast("Có lỗi xảy ra khi lưu", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+            }
+        });
+
+        // Hàm chuẩn bị dữ liệu lên Form để Sửa (Gắn vào window để gọi từ HTML string)
+        window.prepareEdit = (id) => {
+            if (!currentUser) return;
+            const postsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
+            
+            // Tìm dữ liệu bài viết từ local UI (có thể lấy từ db nhưng lấy từ UI cho nhanh vì đã tải)
+            // Tối ưu hơn: Lắng nghe trạng thái realtime, ta có thể dùng biến lưu tạm.
+            // Ở đây gọi 1 truy vấn nhỏ để lấy data cho chắc chắn
+            
+            // Đơn giản hóa: kích hoạt trạng thái sửa
+            editPostIdInput.value = id;
+            formTitle.innerHTML = '<i class="ph ph-pencil-simple text-blue-600"></i> Đang sửa bài viết';
+            submitBtn.innerHTML = '<i class="ph ph-check"></i> Cập nhật bài';
+            submitBtn.classList.replace('bg-blue-600', 'bg-emerald-600');
+            submitBtn.classList.replace('hover:bg-blue-700', 'hover:bg-emerald-700');
+            cancelEditBtn.classList.remove('hidden');
+            
+            // Cuộn lên form
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Tìm post data từ DOM
+            unsubscribeSnapshot(); // Tạm ngắt listener để query trực tiếp
+            
+            // Cách đơn giản nhất để lấy data đưa lên form mà ko gọi db lại
+            const postsCollection = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
+            onSnapshot(doc(postsCollection, id), (document) => {
+                if(document.exists()){
+                     const data = document.data();
+                     titleInput.value = data.title;
+                     contentInput.value = data.content;
+                     statusSelect.value = data.status;
+                }
+                loadPosts(); // Khởi động lại listener tổng
+            });
+        };
+
+        // Hủy chế độ sửa
+        const exitEditMode = () => {
+            editPostIdInput.value = '';
+            form.reset();
+            formTitle.innerHTML = '<i class="ph ph-pencil-simple-line"></i> Tạo bài viết mới';
+            submitBtn.innerHTML = '<i class="ph ph-floppy-disk"></i> Lưu bài viết';
+            submitBtn.classList.replace('bg-emerald-600', 'bg-blue-600');
+            submitBtn.classList.replace('hover:bg-emerald-700', 'hover:bg-blue-700');
+            cancelEditBtn.classList.add('hidden');
+        };
+        cancelEditBtn.addEventListener('click', exitEditMode);
+
+        // 5. LOGIC XÓA DỮ LIỆU (DELETE)
+        window.requestDelete = (id) => {
+            deleteTargetId = id;
+            confirmModal.classList.remove('hidden');
+            confirmModal.classList.add('flex');
+        };
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteTargetId = null;
+            confirmModal.classList.add('hidden');
+            confirmModal.classList.remove('flex');
+        });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!currentUser || !deleteTargetId) return;
+            
+            const originalText = confirmDeleteBtn.textContent;
+            confirmDeleteBtn.textContent = 'Đang xóa...';
+            
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME, deleteTargetId);
+                await deleteDoc(docRef);
+                showToast("Đã xóa bài viết!", "success");
+            } catch (error) {
+                console.error("Lỗi khi xóa:", error);
+                showToast("Lỗi khi xóa bài", "error");
+            } finally {
+                confirmDeleteBtn.textContent = originalText;
+                confirmModal.classList.add('hidden');
+                confirmModal.classList.remove('flex');
+                deleteTargetId = null;
+            }
+        });
+
+        // 6. TIỆN ÍCH (Hiển thị thông báo)
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMsg.textContent = message;
+            
+            // Xóa class cũ
+            toast.classList.remove('bg-gray-900', 'bg-red-600', 'bg-green-600');
+            
+            if (type === 'success') {
+                toast.classList.add('bg-green-600');
+                toastIcon.className = 'ph ph-check-circle text-xl';
+            } else if (type === 'error') {
+                toast.classList.add('bg-red-600');
+                toastIcon.className = 'ph ph-warning-circle text-xl';
+            } else {
+                toast.classList.add('bg-gray-900');
+                toastIcon.className = 'ph ph-info text-xl';
+            }
+
+            // Hiện
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            // Tự ẩn sau 3 giây
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
