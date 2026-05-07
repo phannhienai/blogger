@@ -177,14 +177,55 @@
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
+        // Hàm xử lý UI khi bị lỗi quyền bảo mật (Permission Denied)
+        function showPermissionErrorUI() {
+            appContainer.classList.add('hidden');
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.innerHTML = `
+                <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-4 text-center border border-red-100 fade-in">
+                    <i class="ph-fill ph-shield-warning text-6xl text-red-500 mb-4 inline-block"></i>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-3">Lỗi Quyền Truy Cập</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Cơ sở dữ liệu đang khóa quyền Đọc/Ghi.<br>Vui lòng vào <b>Firebase Console > Firestore Database > Rules</b> để cập nhật Rules, sau đó tải lại trang.
+                    </p>
+                    <button onclick="window.location.reload()" class="w-full mb-3 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                        Đã cập nhật Rules - Tải lại trang
+                    </button>
+                </div>
+            `;
+        }
+
         // 2. QUẢN LÝ XÁC THỰC (Bắt buộc trước khi thao tác Database)
         const initAuth = async () => {
             try {
                 // Đăng nhập ẩn danh (Yêu cầu phải bật Authentication -> Anonymous trong Firebase Console)
                 await signInAnonymously(auth);
             } catch (error) {
-                showToast("Lỗi đăng nhập: " + error.message, "error");
                 console.error("Auth error:", error);
+                
+                // Cập nhật giao diện màn hình chờ để hiển thị thông báo lỗi rõ ràng
+                if (error.code === 'auth/admin-restricted-operation') {
+                    loadingOverlay.innerHTML = `
+                        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-4 text-center border border-red-100 fade-in">
+                            <i class="ph-fill ph-warning-circle text-6xl text-red-500 mb-4 inline-block"></i>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-3">Chưa bật Xác thực Ẩn danh</h2>
+                            <p class="text-gray-600 mb-6 leading-relaxed">
+                                Để Tool hoạt động, bạn cần truy cập vào <b>Firebase Console > Authentication > Sign-in method</b> và BẬT nhà cung cấp <b>Anonymous</b> (Ẩn danh).
+                            </p>
+                            <button onclick="window.location.reload()" class="w-full mb-3 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-lg transition-colors">
+                                Tải lại trang (Sau khi đã bật)
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    loadingOverlay.innerHTML = `
+                        <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md mx-4 text-center border border-red-100 fade-in">
+                            <i class="ph-fill ph-x-circle text-6xl text-red-500 mb-4 inline-block"></i>
+                            <h2 class="text-xl font-bold text-gray-900 mb-2">Lỗi kết nối Firebase</h2>
+                            <p class="text-gray-600">${error.message}</p>
+                        </div>
+                    `;
+                }
             }
         };
 
@@ -222,8 +263,12 @@
                 
                 renderPosts(posts);
             }, (error) => {
-                showToast("Lỗi tải dữ liệu", "error");
-                console.error(error);
+                console.error("Lỗi Firestore:", error);
+                if (error.code === 'permission-denied') {
+                    showPermissionErrorUI();
+                } else {
+                    showToast("Lỗi tải dữ liệu: " + error.message, "error");
+                }
             });
         }
 
@@ -323,8 +368,12 @@
                     form.reset();
                 }
             } catch (error) {
-                console.error("Lỗi:", error);
-                showToast("Có lỗi xảy ra khi lưu", "error");
+                console.error("Lỗi thêm/sửa:", error);
+                if (error.code === 'permission-denied') {
+                    showPermissionErrorUI();
+                } else {
+                    showToast("Có lỗi xảy ra khi lưu", "error");
+                }
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnHtml;
@@ -400,7 +449,11 @@
                 showToast("Đã xóa bài viết!", "success");
             } catch (error) {
                 console.error("Lỗi khi xóa:", error);
-                showToast("Lỗi khi xóa bài", "error");
+                if (error.code === 'permission-denied') {
+                    showPermissionErrorUI();
+                } else {
+                    showToast("Lỗi khi xóa bài", "error");
+                }
             } finally {
                 confirmDeleteBtn.textContent = originalText;
                 confirmModal.classList.add('hidden');
