@@ -3,496 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công cụ quản lý bài viết Blogger</title>
-    <!-- Sử dụng Tailwind CSS để làm giao diện nhanh và đẹp -->
+    <title>Chuyên Gia Bất Động Sản | Thủ Đức & Bình Dương</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Icon từ Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Tùy chỉnh thanh cuộn cho đẹp */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+<body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center">
-        <i class="ph ph-spinner-gap animate-spin text-5xl text-blue-500 mb-4"></i>
-        <p class="text-gray-600 font-medium">Đang kết nối hệ thống...</p>
-    </div>
-
-    <!-- Main Container -->
-    <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 hidden" id="appContainer">
-        
-        <header class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                    <i class="ph-fill ph-google-logo text-blue-500"></i>
-                    Blogger Content Hub
-                </h1>
-                <p class="text-gray-500 mt-1">Quản lý và lưu trữ bài viết trên Firebase</p>
+    <!-- Navbar -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center">
+                    <a href="#" class="flex-shrink-0 flex items-center">
+                        <!-- Replace with your actual logo or name -->
+                        <span class="font-bold text-2xl text-blue-700">Nguyen Van A.</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-gray-600 hover:text-blue-600 font-medium transition">Về Tôi</a>
+                    <a href="#expertise" class="text-gray-600 hover:text-blue-600 font-medium transition">Chuyên Môn</a>
+                    <a href="#listings" class="text-gray-600 hover:text-blue-600 font-medium transition">BĐS Nổi Bật</a>
+                    <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium transition shadow-lg shadow-blue-200">Liên Hệ Ngay</a>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
             </div>
-            <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                Đã kết nối
-            </div>
-        </header>
+        </div>
+    </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Cột trái: Form Thêm/Sửa bài viết -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2" id="formTitle">
-                        <i class="ph ph-pencil-simple-line"></i> Tạo bài viết mới
-                    </h2>
-                    
-                    <form id="postForm" class="space-y-4">
-                        <!-- Trường ẩn để lưu ID bài viết khi đang chế độ Sửa -->
-                        <input type="hidden" id="editPostId">
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề bài viết</label>
-                            <input type="text" id="title" required placeholder="Nhập tiêu đề hấp dẫn..." 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nội dung HTML / Văn bản</label>
-                            <textarea id="content" required rows="10" placeholder="<p>Nội dung bài viết bắt đầu ở đây...</p>"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"></textarea>
-                        </div>
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+                <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm mb-6">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i> Chuyên gia Môi giới Bất động sản
+                    </div>
+                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
+                        <span class="block xl:inline">Tìm kiếm ngôi nhà mơ ước tại</span>
+                        <span class="block text-blue-600 xl:inline">Thủ Đức & Bình Dương</span>
+                    </h1>
+                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        Chuyên sâu về Nhà phố, Nhà riêng. Tận tâm, minh bạch và chuyên nghiệp. Tôi ở đây để giúp bạn đưa ra quyết định đầu tư hoặc an cư sáng suốt nhất.
+                    </p>
+                    <div class="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0 flex flex-col sm:flex-row gap-4">
+                        <a href="#contact" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 shadow-lg shadow-blue-300 transition">
+                            Tư Vấn Miễn Phí
+                        </a>
+                        <a href="tel:0901234567" class="inline-flex items-center justify-center px-8 py-3 border-2 border-gray-300 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 transition">
+                            <i class="fas fa-phone-alt mr-2 text-blue-600"></i> 090 123 4567
+                        </a>
+                    </div>
+                </div>
+                <!-- Hero Image -->
+                <div class="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
+                    <div class="relative mx-auto w-full rounded-2xl shadow-2xl lg:max-w-md overflow-hidden bg-white">
+                        <!-- Placeholder for your professional photo -->
+                        <img class="w-full h-auto object-cover object-center" src="https://placehold.co/600x800/2563eb/ffffff?text=Hình+Ảnh+Chuyên+Nghiệp+Của+Bạn" alt="Chân dung môi giới">
                         
+                        <!-- Floating Trust Badge -->
+                        <div class="absolute bottom-6 left-6 bg-white p-4 rounded-xl shadow-xl flex items-center gap-4">
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Giao dịch thành công</p>
+                                <p class="text-xl font-bold text-gray-900">50+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
+                <div class="mb-10 lg:mb-0 relative">
+                    <img class="rounded-2xl shadow-lg w-full" src="https://placehold.co/800x600/f3f4f6/1f2937?text=Hình+Ảnh+Làm+Việc/Văn+Phòng" alt="Làm việc cùng khách hàng">
+                    <!-- Decorative element -->
+                    <div class="absolute -bottom-6 -right-6 w-48 h-48 bg-blue-100 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob"></div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl mb-6">
+                        Chào bạn, tôi là <span class="text-blue-600">Nguyễn Văn A</span>
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                        Với hơn 5 năm kinh nghiệm hoạt động chuyên sâu tại thị trường <strong class="text-gray-900">Thủ Đức và Bình Dương</strong>, tôi thấu hiểu từng con phố, từng dự án và tiềm năng phát triển của khu vực này.
+                    </p>
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                        Sự tập trung của tôi nằm ở phân khúc <strong class="text-gray-900">Nhà phố và Nhà riêng</strong>. Tôi tin rằng mỗi ngôi nhà không chỉ là một tài sản, mà còn là tổ ấm. Phương châm làm việc của tôi là: <span class="italic font-medium text-blue-700">"Tư vấn trung thực - Đầu tư hiệu quả - An cư bền vững"</span>.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <p class="text-3xl font-bold text-gray-900">100%</p>
+                            <p class="text-sm text-gray-500 mt-1">Minh bạch pháp lý</p>
+                        </div>
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <p class="text-3xl font-bold text-gray-900">24/7</p>
+                            <p class="text-sm text-gray-500 mt-1">Hỗ trợ tận tâm</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expertise Section -->
+    <section id="expertise" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Lĩnh Vực Chuyên Môn</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Tập trung để tạo ra giá trị tốt nhất
+                </p>
+                <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+                    Thay vì làm mọi thứ, tôi chọn chuyên sâu vào những lĩnh vực mình tự tin nhất để mang lại hiệu quả tối đa cho khách hàng.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-lg transition duration-300 group">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-2xl mb-6 group-hover:scale-110 transition">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Nhà Phố Thương Mại</h3>
+                    <p class="text-gray-600">Tư vấn vị trí đắc địa, đánh giá tiềm năng kinh doanh và khả năng sinh lời cho các sản phẩm nhà mặt tiền, nhà phố thương mại tại trung tâm Thủ Đức & Bình Dương.</p>
+                </div>
+                
+                <!-- Service 2 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-lg transition duration-300 group">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-2xl mb-6 group-hover:scale-110 transition">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Nhà Riêng / Nhà Hẻm</h3>
+                    <p class="text-gray-600">Tìm kiếm không gian sống yên tĩnh, phù hợp ngân sách. Tôi sàng lọc kỹ càng về tính pháp lý (sổ hồng riêng), không vướng quy hoạch để bạn an tâm an cư.</p>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-lg transition duration-300 group">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-2xl mb-6 group-hover:scale-110 transition">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Tư Vấn Pháp Lý & Thủ Tục</h3>
+                    <p class="text-gray-600">Hỗ trợ toàn bộ quy trình từ đặt cọc, công chứng sang tên đến vay vốn ngân hàng. Đảm bảo giao dịch diễn ra nhanh chóng, an toàn và đúng pháp luật.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Listings (Optional but recommended for proof) -->
+    <section id="listings" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
+                        Nguồn Hàng Nổi Bật
+                    </h2>
+                    <p class="mt-3 text-lg text-gray-500">Một số sản phẩm giá tốt, pháp lý chuẩn đang được chào bán.</p>
+                </div>
+                <a href="#contact" class="hidden md:flex text-blue-600 font-medium hover:text-blue-800 items-center">
+                    Xem tất cả nguồn hàng <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Listing Item 1 -->
+                <div class="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition duration-300 cursor-pointer">
+                    <div class="relative h-60">
+                        <img src="https://placehold.co/600x400/9ca3af/ffffff?text=Hình+Nhà+Phố+Thủ+Đức" class="w-full h-full object-cover" alt="Nhà Thủ Đức">
+                        <div class="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                            Đang Bán
+                        </div>
+                        <div class="absolute bottom-4 right-4 bg-gray-900/80 text-white text-sm font-medium px-3 py-1 rounded-lg flex items-center backdrop-blur-sm">
+                            <i class="fas fa-camera mr-2"></i> 8 Ảnh
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-gray-900 line-clamp-2">Nhà phố 1 trệt 2 lầu, hẻm xe hơi Hiệp Bình Chánh</h3>
+                        </div>
+                        <p class="text-2xl font-bold text-blue-600 mb-4">6.5 Tỷ</p>
+                        <div class="flex items-center text-gray-500 text-sm mb-4">
+                            <i class="fas fa-map-marker-alt mr-2"></i> Thủ Đức, TP. HCM
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 border-t border-gray-100 pt-4">
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-bed text-gray-400 mb-1"></i>
+                                <span class="text-sm font-medium text-gray-700">4 PN</span>
+                            </div>
+                            <div class="flex flex-col items-center border-l border-r border-gray-100">
+                                <i class="fas fa-bath text-gray-400 mb-1"></i>
+                                <span class="text-sm font-medium text-gray-700">3 WC</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-vector-square text-gray-400 mb-1"></i>
+                                <span class="text-sm font-medium text-gray-700">60m²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Listing Item 2 -->
+                <div class="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition duration-300 cursor-pointer">
+                    <div class="relative h-60">
+                        <img src="https://placehold.co/600x400/9ca3af/ffffff?text=Hình+Nhà+Dĩ+An" class="w-full h-full object-cover" alt="Nhà Dĩ An">
+                        <div class="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                            Mới Nhất
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-gray-900 line-clamp-2">Nhà riêng mới xây thiết kế hiện đại trung tâm Dĩ An</h3>
+                        </div>
+                        <p class="text-2xl font-bold text-blue-600 mb-4">4.2 Tỷ</p>
+                        <div class="flex items-center text-gray-500 text-sm mb-4">
+                            <i class="fas fa-map-marker-alt mr-2"></i> Dĩ An, Bình Dương
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 border-t border-gray-100 pt-4">
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-bed text-gray-400 mb-1"></i>
+                                <span class="text-sm font-medium text-gray-700">3 PN</span>
+                            </div>
+                            <div class="flex flex-col items-center border-l border-r border-gray-100">
+                                <i class="fas fa-bath text-gray-400 mb-1"></i>
+                                <span class="text-sm font-medium text-gray-700">2 WC</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-vector-square text-gray-400 mb-1"></i>
+                                <span class="text-sm font-medium text-gray-700">72m²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Listing Item 3 (Sold to show success) -->
+                 <div class="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm opacity-80 hover:opacity-100 transition duration-300">
+                    <div class="relative h-60 grayscale hover:grayscale-0 transition duration-500">
+                        <img src="https://placehold.co/600x400/9ca3af/ffffff?text=Hình+Nhà+Đã+Bán" class="w-full h-full object-cover" alt="Nhà đã bán">
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                             <div class="border-4 border-green-500 text-green-500 bg-white/90 text-xl font-bold px-6 py-2 uppercase tracking-widest transform -rotate-12">
+                                Đã Giao Dịch
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-gray-500 line-clamp-2">Nhà phố 2 mặt tiền đường số, Trường Thọ</h3>
+                        </div>
+                        <p class="text-lg text-gray-400 mb-4 line-through">8.9 Tỷ</p>
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i> Giao dịch nhanh chóng trong 2 tuần
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center md:hidden">
+                 <a href="#contact" class="inline-flex text-blue-600 font-medium hover:text-blue-800 items-center">
+                    Xem tất cả nguồn hàng <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 bg-blue-600 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-center mb-16">Khách Hàng Nói Gì Về Tôi?</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-blue-700 p-8 rounded-2xl">
+                    <div class="flex text-yellow-400 mb-4 text-sm">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-lg italic mb-6">"Tôi mua căn nhà đầu tiên tại Thủ Đức và được anh A hỗ trợ rất nhiệt tình. Từ việc chọn lọc căn phù hợp với tài chính cho đến việc kiểm tra quy hoạch, mọi thứ đều rõ ràng. Rất an tâm khi làm việc cùng."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center font-bold text-xl mr-4">T</div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-                            <select id="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="draft">Bản nháp (Draft)</option>
-                                <option value="ready">Sẵn sàng đăng (Ready)</option>
+                            <h4 class="font-bold">Anh Tuấn</h4>
+                            <p class="text-blue-200 text-sm">Khách mua nhà Thủ Đức</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-700 p-8 rounded-2xl">
+                    <div class="flex text-yellow-400 mb-4 text-sm">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-lg italic mb-6">"Cần bán gấp nhà ở Dĩ An để chuyển chỗ ở, nhờ có A mà nhà bay nhanh chóng với giá tốt. A rành khu vực này, định giá chuẩn và tìm khách rất nhanh. Cảm ơn em nhiều."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center font-bold text-xl mr-4">H</div>
+                        <div>
+                            <h4 class="font-bold">Chị Hoa</h4>
+                            <p class="text-blue-200 text-sm">Khách bán nhà Bình Dương</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden lg:grid lg:grid-cols-2">
+                <!-- Contact Info -->
+                <div class="bg-gray-900 py-16 px-10 lg:px-16 text-white relative overflow-hidden">
+                    <!-- Background pattern -->
+                    <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+                    
+                    <div class="relative z-10">
+                        <h3 class="text-3xl font-extrabold mb-4">Bạn Cần Tư Vấn?</h3>
+                        <p class="text-gray-300 text-lg mb-10">Đừng ngần ngại liên hệ. Tôi luôn sẵn sàng lắng nghe nhu cầu và tìm ra giải pháp bất động sản tốt nhất cho bạn.</p>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1 text-blue-400">
+                                    <i class="fas fa-phone-alt text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-400">Điện thoại / Zalo</p>
+                                    <a href="tel:0901234567" class="text-xl font-bold hover:text-blue-400 transition">090 123 4567</a>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1 text-blue-400">
+                                    <i class="fab fa-facebook-messenger text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-400">Nhắn tin trực tiếp</p>
+                                    <a href="#" class="text-lg font-medium hover:text-blue-400 transition">m.me/nguyen.van.a.bds</a>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1 text-blue-400">
+                                    <i class="fas fa-map-marker-alt text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-400">Khu vực hoạt động</p>
+                                    <p class="text-lg font-medium">Thủ Đức (TP.HCM) & Dĩ An, Thuận An (Bình Dương)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 flex space-x-4">
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-500 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-500 transition">
+                                <i class="fab fa-zalo"></i> <!-- FontAwesome doesn't have Zalo, but this acts as placeholder -->
+                                <span class="text-xs font-bold">Z</span>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-500 transition">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div class="py-16 px-10 lg:px-16">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8">Để lại thông tin, tôi sẽ gọi lại ngay!</h3>
+                    <form action="#" method="POST" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Họ và tên</label>
+                            <input type="text" name="name" id="name" class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-blue-500 focus:border-blue-500" placeholder="Nguyễn Văn B" required>
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Số điện thoại <span class="text-red-500">*</span></label>
+                            <input type="tel" name="phone" id="phone" class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-blue-500 focus:border-blue-500" placeholder="09..." required>
+                        </div>
+                        <div>
+                            <label for="demand" class="block text-sm font-medium text-gray-700">Nhu cầu của bạn</label>
+                            <select id="demand" name="demand" class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                <option>Đang tìm mua nhà Thủ Đức</option>
+                                <option>Đang tìm mua nhà Bình Dương</option>
+                                <option>Cần bán nhà</option>
+                                <option>Cần tư vấn pháp lý / định giá</option>
+                                <option>Khác</option>
                             </select>
                         </div>
-
-                        <div class="pt-2 flex gap-2">
-                            <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex justify-center items-center gap-2">
-                                <i class="ph ph-floppy-disk"></i> Lưu bài viết
-                            </button>
-                            <button type="button" id="cancelEditBtn" class="hidden px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
-                                Hủy
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700">Ghi chú thêm (Tài chính, khu vực cụ thể...)</label>
+                            <textarea id="message" name="message" rows="4" class="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-blue-500 focus:border-blue-500" placeholder="Ví dụ: Tài chính khoảng 5 tỷ, cần tìm hẻm xe hơi..."></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                                Gửi Yêu Cầu Tư Vấn
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-
-            <!-- Cột phải: Danh sách bài viết -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-[calc(100vh-120px)] min-h-[500px]">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h2 class="text-xl font-semibold flex items-center gap-2">
-                            <i class="ph ph-list-dashes"></i> Kho bài viết (<span id="postCount">0</span>)
-                        </h2>
-                    </div>
-                    
-                    <!-- Vùng chứa danh sách -->
-                    <div class="p-6 overflow-y-auto flex-1 bg-gray-50/30" id="postsContainer">
-                        <!-- Render danh sách ở đây -->
-                        <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
-                            <i class="ph ph-file-text text-6xl mb-3"></i>
-                            <p>Chưa có bài viết nào.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Custom Confirm Modal (Thay thế cho window.confirm) -->
-    <div id="confirmModal" class="fixed inset-0 bg-black/50 z-50 hidden flex-col items-center justify-center">
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl fade-in">
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Xác nhận xóa</h3>
-            <p class="text-gray-600 mb-6">Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.</p>
-            <div class="flex justify-end gap-3">
-                <button id="cancelDeleteBtn" class="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors">Hủy</button>
-                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">Xóa bài</button>
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0 text-center md:text-left">
+                <span class="font-bold text-xl text-white">Nguyen Van A.</span>
+                <p class="text-gray-400 text-sm mt-1">Chuyên gia Bất động sản Thủ Đức & Bình Dương</p>
             </div>
+            <p class="text-gray-500 text-sm text-center md:text-right">
+                &copy; 2026. Thiết kế mẫu bởi Gemini. All rights reserved.
+            </p>
         </div>
-    </div>
+    </footer>
 
-    <!-- Message Toast -->
-    <div id="toast" class="fixed bottom-4 right-4 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50">
-        <i class="ph ph-info" id="toastIcon"></i>
-        <span id="toastMessage">Thông báo</span>
-    </div>
-
-    <!-- FIREBASE & APP LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // 1. CẤU HÌNH & KHỞI TẠO FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyAIuE6N7A5p7rK-nGeO3io0Nz0WeMY1okY",
-            authDomain: "nexgen247-blogger.firebaseapp.com",
-            projectId: "nexgen247-blogger",
-            storageBucket: "nexgen247-blogger.firebasestorage.app",
-            messagingSenderId: "761509956773",
-            appId: "1:761509956773:web:9a837387a18951db41914c",
-            measurementId: "G-HFN8BXDH81"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        const appId = 'nexgen247-blogger-tool'; // Tên định danh cho dự án của bạn
-        const COLLECTION_NAME = 'BloggerPosts';
-        
-        let currentUser = null;
-        let unsubscribeSnapshot = null;
-        let deleteTargetId = null;
-
-        // DOM Elements
-        const form = document.getElementById('postForm');
-        const titleInput = document.getElementById('title');
-        const contentInput = document.getElementById('content');
-        const statusSelect = document.getElementById('status');
-        const editPostIdInput = document.getElementById('editPostId');
-        
-        const formTitle = document.getElementById('formTitle');
-        const submitBtn = document.getElementById('submitBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const postsContainer = document.getElementById('postsContainer');
-        const postCount = document.getElementById('postCount');
-        const emptyState = document.getElementById('emptyState');
-        const appContainer = document.getElementById('appContainer');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-
-        // Modal Elements
-        const confirmModal = document.getElementById('confirmModal');
-        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-
-        // Hàm xử lý UI khi bị lỗi quyền bảo mật (Permission Denied)
-        function showPermissionErrorUI() {
-            appContainer.classList.add('hidden');
-            loadingOverlay.classList.remove('hidden');
-            loadingOverlay.innerHTML = `
-                <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-4 text-center border border-red-100 fade-in">
-                    <i class="ph-fill ph-shield-warning text-6xl text-red-500 mb-4 inline-block"></i>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-3">Lỗi Quyền Truy Cập</h2>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        Cơ sở dữ liệu đang khóa quyền Đọc/Ghi.<br>Vui lòng vào <b>Firebase Console > Firestore Database > Rules</b> để cập nhật Rules, sau đó tải lại trang.
-                    </p>
-                    <button onclick="window.location.reload()" class="w-full mb-3 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
-                        Đã cập nhật Rules - Tải lại trang
-                    </button>
-                </div>
-            `;
-        }
-
-        // 2. QUẢN LÝ XÁC THỰC (Bắt buộc trước khi thao tác Database)
-        const initAuth = async () => {
-            try {
-                // Đăng nhập ẩn danh (Yêu cầu phải bật Authentication -> Anonymous trong Firebase Console)
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Auth error:", error);
-                
-                // Cập nhật giao diện màn hình chờ để hiển thị thông báo lỗi rõ ràng
-                if (error.code === 'auth/admin-restricted-operation') {
-                    loadingOverlay.innerHTML = `
-                        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-4 text-center border border-red-100 fade-in">
-                            <i class="ph-fill ph-warning-circle text-6xl text-red-500 mb-4 inline-block"></i>
-                            <h2 class="text-2xl font-bold text-gray-900 mb-3">Chưa bật Xác thực Ẩn danh</h2>
-                            <p class="text-gray-600 mb-6 leading-relaxed">
-                                Để Tool hoạt động, bạn cần truy cập vào <b>Firebase Console > Authentication > Sign-in method</b> và BẬT nhà cung cấp <b>Anonymous</b> (Ẩn danh).
-                            </p>
-                            <button onclick="window.location.reload()" class="w-full mb-3 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-lg transition-colors">
-                                Tải lại trang (Sau khi đã bật)
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    loadingOverlay.innerHTML = `
-                        <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md mx-4 text-center border border-red-100 fade-in">
-                            <i class="ph-fill ph-x-circle text-6xl text-red-500 mb-4 inline-block"></i>
-                            <h2 class="text-xl font-bold text-gray-900 mb-2">Lỗi kết nối Firebase</h2>
-                            <p class="text-gray-600">${error.message}</p>
-                        </div>
-                    `;
-                }
-            }
-        };
-
-        // Lắng nghe trạng thái đăng nhập
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                loadingOverlay.classList.add('hidden');
-                appContainer.classList.remove('hidden');
-                loadPosts(); // Chỉ tải dữ liệu khi đã có user
-            } else {
-                currentUser = null;
-            }
-        });
-
-        // Bắt đầu quá trình xác thực
-        initAuth();
-
-        // 3. LOGIC HIỂN THỊ DỮ LIỆU (READ)
-        function loadPosts() {
-            if (!currentUser) return;
-
-            // Lấy Collection tham chiếu theo đúng chuẩn bảo mật
-            const postsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
-
-            // onSnapshot giúp dữ liệu cập nhật Realtime mà không cần tải lại trang
-            unsubscribeSnapshot = onSnapshot(postsRef, (snapshot) => {
-                const posts = [];
-                snapshot.forEach((doc) => {
-                    posts.push({ id: doc.id, ...doc.data() });
-                });
-
-                // Sắp xếp bằng JS trên RAM (Bài mới lên đầu)
-                posts.sort((a, b) => b.timestamp - a.timestamp);
-                
-                renderPosts(posts);
-            }, (error) => {
-                console.error("Lỗi Firestore:", error);
-                if (error.code === 'permission-denied') {
-                    showPermissionErrorUI();
-                } else {
-                    showToast("Lỗi tải dữ liệu: " + error.message, "error");
-                }
-            });
-        }
-
-        function renderPosts(posts) {
-            postCount.textContent = posts.length;
-            
-            if (posts.length === 0) {
-                postsContainer.innerHTML = '';
-                postsContainer.appendChild(emptyState);
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            let html = '<div class="space-y-4">';
-
-            posts.forEach(post => {
-                const date = new Date(post.timestamp).toLocaleString('vi-VN');
-                const statusColor = post.status === 'draft' ? 'bg-gray-100 text-gray-700' : 'bg-green-100 text-green-700';
-                const statusText = post.status === 'draft' ? 'Bản nháp' : 'Sẵn sàng';
-
-                // Trích xuất 1 đoạn ngắn của content để làm preview
-                const contentPreview = post.content.replace(/<[^>]*>?/gm, '').substring(0, 100) + '...';
-
-                html += `
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow fade-in">
-                        <div class="flex justify-between items-start gap-4">
-                            <div class="flex-1 min-w-0">
-                                <h3 class="text-lg font-semibold text-gray-900 truncate" title="${post.title}">
-                                    ${post.title}
-                                </h3>
-                                <div class="flex items-center gap-3 mt-2 text-xs">
-                                    <span class="px-2.5 py-1 rounded-full font-medium ${statusColor}">${statusText}</span>
-                                    <span class="text-gray-400 flex items-center gap-1"><i class="ph ph-clock"></i> ${date}</span>
-                                </div>
-                                <p class="text-gray-500 text-sm mt-3 line-clamp-2">${contentPreview}</p>
-                            </div>
-                            
-                            <!-- Nút thao tác -->
-                            <div class="flex flex-col sm:flex-row gap-2 shrink-0">
-                                <button onclick="window.prepareEdit('${post.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Sửa bài">
-                                    <i class="ph ph-pencil-simple text-xl"></i>
-                                </button>
-                                <button onclick="window.requestDelete('${post.id}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Xóa bài">
-                                    <i class="ph ph-trash text-xl"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            postsContainer.innerHTML = html;
-        }
-
-        // 4. LOGIC THÊM VÀ SỬA DỮ LIỆU (CREATE & UPDATE)
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser) return;
-
-            const title = titleInput.value.trim();
-            const content = contentInput.value.trim();
-            const status = statusSelect.value;
-            const editId = editPostIdInput.value;
-
-            if (!title || !content) {
-                showToast("Vui lòng điền đủ Tiêu đề và Nội dung", "error");
-                return;
-            }
-
-            // Vô hiệu hóa nút để tránh click nhiều lần
-            submitBtn.disabled = true;
-            const originalBtnHtml = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Đang xử lý...';
-
-            try {
-                const postsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
-                
-                const postData = {
-                    title: title,
-                    content: content,
-                    status: status,
-                    timestamp: Date.now() // Sử dụng JS timestamp cho đơn giản
-                };
-
-                if (editId) {
-                    // Chế độ UPDATE
-                    const docRef = doc(postsRef, editId);
-                    await updateDoc(docRef, postData);
-                    showToast("Cập nhật thành công!", "success");
-                    exitEditMode();
-                } else {
-                    // Chế độ CREATE (Thêm mới)
-                    await addDoc(postsRef, postData);
-                    showToast("Lưu bài viết thành công!", "success");
-                    form.reset();
-                }
-            } catch (error) {
-                console.error("Lỗi thêm/sửa:", error);
-                if (error.code === 'permission-denied') {
-                    showPermissionErrorUI();
-                } else {
-                    showToast("Có lỗi xảy ra khi lưu", "error");
-                }
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHtml;
-            }
-        });
-
-        // Hàm chuẩn bị dữ liệu lên Form để Sửa (Gắn vào window để gọi từ HTML string)
-        window.prepareEdit = (id) => {
-            if (!currentUser) return;
-            const postsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
-            
-            // Đơn giản hóa: kích hoạt trạng thái sửa
-            editPostIdInput.value = id;
-            formTitle.innerHTML = '<i class="ph ph-pencil-simple text-blue-600"></i> Đang sửa bài viết';
-            submitBtn.innerHTML = '<i class="ph ph-check"></i> Cập nhật bài';
-            submitBtn.classList.replace('bg-blue-600', 'bg-emerald-600');
-            submitBtn.classList.replace('hover:bg-blue-700', 'hover:bg-emerald-700');
-            cancelEditBtn.classList.remove('hidden');
-            
-            // Cuộn lên form
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // Tìm post data từ DOM
-            unsubscribeSnapshot(); // Tạm ngắt listener để query trực tiếp
-            
-            // Cách đơn giản nhất để lấy data đưa lên form mà ko gọi db lại
-            const postsCollection = collection(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME);
-            onSnapshot(doc(postsCollection, id), (document) => {
-                if(document.exists()){
-                     const data = document.data();
-                     titleInput.value = data.title;
-                     contentInput.value = data.content;
-                     statusSelect.value = data.status;
-                }
-                loadPosts(); // Khởi động lại listener tổng
-            });
-        };
-
-        // Hủy chế độ sửa
-        const exitEditMode = () => {
-            editPostIdInput.value = '';
-            form.reset();
-            formTitle.innerHTML = '<i class="ph ph-pencil-simple-line"></i> Tạo bài viết mới';
-            submitBtn.innerHTML = '<i class="ph ph-floppy-disk"></i> Lưu bài viết';
-            submitBtn.classList.replace('bg-emerald-600', 'bg-blue-600');
-            submitBtn.classList.replace('hover:bg-emerald-700', 'hover:bg-blue-700');
-            cancelEditBtn.classList.add('hidden');
-        };
-        cancelEditBtn.addEventListener('click', exitEditMode);
-
-        // 5. LOGIC XÓA DỮ LIỆU (DELETE)
-        window.requestDelete = (id) => {
-            deleteTargetId = id;
-            confirmModal.classList.remove('hidden');
-            confirmModal.classList.add('flex');
-        };
-
-        cancelDeleteBtn.addEventListener('click', () => {
-            deleteTargetId = null;
-            confirmModal.classList.add('hidden');
-            confirmModal.classList.remove('flex');
-        });
-
-        confirmDeleteBtn.addEventListener('click', async () => {
-            if (!currentUser || !deleteTargetId) return;
-            
-            const originalText = confirmDeleteBtn.textContent;
-            confirmDeleteBtn.textContent = 'Đang xóa...';
-            
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, COLLECTION_NAME, deleteTargetId);
-                await deleteDoc(docRef);
-                showToast("Đã xóa bài viết!", "success");
-            } catch (error) {
-                console.error("Lỗi khi xóa:", error);
-                if (error.code === 'permission-denied') {
-                    showPermissionErrorUI();
-                } else {
-                    showToast("Lỗi khi xóa bài", "error");
-                }
-            } finally {
-                confirmDeleteBtn.textContent = originalText;
-                confirmModal.classList.add('hidden');
-                confirmModal.classList.remove('flex');
-                deleteTargetId = null;
-            }
-        });
-
-        // 6. TIỆN ÍCH (Hiển thị thông báo)
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMessage');
-            const toastIcon = document.getElementById('toastIcon');
-            
-            toastMsg.textContent = message;
-            
-            // Xóa class cũ
-            toast.classList.remove('bg-gray-900', 'bg-red-600', 'bg-green-600');
-            
-            if (type === 'success') {
-                toast.classList.add('bg-green-600');
-                toastIcon.className = 'ph ph-check-circle text-xl';
-            } else if (type === 'error') {
-                toast.classList.add('bg-red-600');
-                toastIcon.className = 'ph ph-warning-circle text-xl';
-            } else {
-                toast.classList.add('bg-gray-900');
-                toastIcon.className = 'ph ph-info text-xl';
-            }
-
-            // Hiện
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            
-            // Tự ẩn sau 3 giây
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
+    <!-- Simple Script for Mobile Menu (Optional but good for UX) -->
+    <script>
+        // You can add logic here to toggle the mobile menu if needed.
+        // For this static preview, the structure is in place.
     </script>
 </body>
 </html>
